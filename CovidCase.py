@@ -149,7 +149,26 @@ Covid_Case.countriesAndTerritories =  Covid_Case.countriesAndTerritories.apply(r
 #Now, checking the following code again.
 all(c.isalnum() for c in Covid_Case.countriesAndTerritories)
 #We would get True result only if all the special characters were removed. But, here we have just removed '_'. I have tried removing all the special characters(code in the comment section). And it worked.
-   
+
+'''
+import re
+my_list= ["on@3", "two#", "thre%e"]
+[re.sub(pattern = '[^a-zA-Z0-9]+', repl = '', string = i) for i in my_list]
+
+
+dframe = DataFrame(data=np.arange(1, 26, 1).reshape((5, 5)), index=[
+                   'NYC', 'LA', 'SF', 'DC', 'Chi'], columns=['A', 'B', 'C', 'D', 'E'])
+dframe.A.replace({1: 'one@', 6: 'si_x', 11: 'ele,ven', 16: 'six tee@@n', 21: 'tw, enty(one)'}, inplace = True)
+dframe
+
+def rc(names):
+    if names.isalnum():
+        return names
+    else:
+        return re.sub(pattern = '[^a-zA-Z0-9]+', repl = '', string = names)
+        
+dframe.A = dframe.A.apply(rc)
+dframe'''    
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
    
 #There are 275 null values in geoId column
