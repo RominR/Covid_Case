@@ -304,7 +304,6 @@ Covid_Case.Cumulative_number_for_14_days_of_COVID19_cases_per_100000.fillna(0, i
 
 #Now, let us work on visualization.
 
-#pull test
 
 
 
