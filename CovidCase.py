@@ -302,14 +302,125 @@ Covid_Case[Covid_Case.Cumulative_number_for_14_days_of_COVID19_cases_per_100000.
 Covid_Case.Cumulative_number_for_14_days_of_COVID19_cases_per_100000.fillna(0, inplace = True)
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#Now, let us work on visualization.
+#Let's work on Regex.
+#url = https://kanoki.org/2019/11/12/how-to-use-regex-in-pandas/
+
+Covid_Case.info()
+Covid_Case.iloc[0]
+
+#Working on .extract() first.
+#Extract the first five characters from values in countriesAndTerritories column which begins with alphanumeric characters.
+Covid_Case.countriesAndTerritories.str.extract(pat = r'(^\w{5})')
+
+#Extract the first five characters from values in countriesAndTerritories column which begins with any characters.
+Covid_Case.countriesAndTerritories.str.extract(pat = r'(^.{5})')
 
 
+#Extract the first 3 characters from values in countriesAndTerritories column which begins with A, B and C characters.
+Covid_Case.countriesAndTerritories.str.extract(pat = r'(^[A-C].{2})')
+Covid_Case.countriesAndTerritories.str.extract(pat = r'(^[A-C].{2})').notnull().sum() #checking to see the total rows affected.
+Covid_Case.countriesAndTerritories.str.extract(pat = r'(^[A-C].{2})')[0].unique() #finding the unique values from the extract report to see if the applied regex matches.
+
+#Extract the values from countriesAndTerritories column which has 'in' in the middle of the strings.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*in.*)')
+Covid_Case.countriesAndTerritories.str.extract(r'(.*in.*)').notnull().sum()#checking to see the total rows affected.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*in.*)')[0].unique()#finding the unique values from the extract report to see if the applied regex matches.
+#[item[0] for item in Covid_Case.countriesAndTerritories.str.findall(r'(.*in.*)') if len(item)>0]
+
+#Extract all those values from countriesAndTerritories column which has special characters.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[^a-zA-Z0-9 ]+.*)')
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[^a-zA-Z0-9 ]+.*)').notnull().sum()#checking to see the total rows affected.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[^a-zA-Z0-9 ]+.*)')[0].unique()#finding the unique values from the extract report to see if the applied regex matches.
+
+#Extract all those values from countriesAndTerritories column which as special characters at the end of the string.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[^a-zA-Z0-9 ]+$)')[0].unique()#finding the unique values from the extract report to see if the applied regex matches.
+
+#Extract all those values from countriesAndTerritories column which has at least 2 space characters.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[ ].*[ ].*)')
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[ ].*[ ].*)').notnull().sum()#checking to see the total rows affected.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[ ].*[ ].*)')[0].unique()#finding the unique values from the extract report to see if the applied regex matches.
+
+#Extract all those values from countriesAndTerritories column which has the word 'United' anywhere in the string.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[Uu]nited.*)')
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[Uu]nited.*)').notnull().sum()#checking to see the total rows affected.
+Covid_Case.countriesAndTerritories.str.extract(r'(.*[Uu]nited.*)')[0].unique()#finding the unique values from the extract report to see if the applied regex matches.
+
+#Looks like we don't have any country which has the word 'United' in the middle of the name. Let us replace one of the countrys' name(done below), then re-run the above code again to see if the code works.
+Covid_Case.countriesAndTerritories.replace({'British Virgin Islands': 'British united Virgin Islands'}, inplace = True)
+
+#Check if there are any characters that begins with numerical characters.
+Covid_Case.countriesAndTerritories.str.extract(pat = r'(^\W{5})')
+Covid_Case.countriesAndTerritories.str.extract(pat = r'(^\W{5})').notnull().sum()
+
+#Adding the columns after first 3 characters from values in countriesAndTerritories column which begins with A, B and C characters.
+Covid_Case['FirstThreeChars'] = Covid_Case.countriesAndTerritories.str.extract(pat = r'(^[A-C].{2})')
 
 
+#Let us work with .match() now.
+
+#Since we have added a new column in the dataframe, let us check if the number of not null rows is equivalent to what was added.
+Covid_Case.info() #There were 15302 non-null values. Now, let us see through the regex
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'(^[A-C].*)') == True] #The rows we obtained from this script matches i.e. 15302 rows.
+
+#Checking if there are 3977, 5721, 5604 values that begins with the letter 'A', 'B', and 'C' respectively.
+
+len(Covid_Case[Covid_Case.FirstThreeChars.str.match(r'(^[A].*)') == True])
+len(Covid_Case[Covid_Case.FirstThreeChars.str.match(r'(^[B].*)') == True])
+len(Covid_Case[Covid_Case.FirstThreeChars.str.match(r'(^[C].*)') == True])
+
+#We can remove the newly added columns if not needed.
+Covid_Case.drop(columns = ['FirstThreeChars'], inplace = True)
+
+#Print all those rows where countriesAndTerritories column starts with 'New'.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'^New.*') == True]
+
+#Let us check if the above regex has the correct output.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'^New.*') == True]['countriesAndTerritories'].unique()
+
+#Print all those rows where countriesAndTerritories column has either 'land' or 'island' in their names.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'.*land.*|.*island.*') == True]
 
 
+#Let us check if the above regex has the correct output.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'.*land.*|.*island.*') == True]['countriesAndTerritories'].unique()
 
+#Print all those rows where countriesAndTerritories column has either '(', ')', and ',' characters.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'.*[()*].*')]
+
+#Let us check if the above regex has the correct output.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'.*[(),].*')]['countriesAndTerritories'].unique()
+
+#Print all those rows where countriesAndTerritories column has 'pal' at the end of the names.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'.*pal\b') == True]
+
+#Let us check if the above regex has the correct output.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'.*pal\b') == True]['countriesAndTerritories'].unique()
+
+#Print all those rows where countriesAndTerritories column has 'pal' at the beginning of the names.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'(\b[Pp]al)') == True]
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'(\b[Pp]al)') == True]['countriesAndTerritories'].unique()
+
+#Return a match where 'ther' are present in the names but NOT at the beginning (or at the end) of a word.
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'(.*\Bles)') == True]
+Covid_Case[Covid_Case.countriesAndTerritories.str.match(r'.*\Bther') == True]['countriesAndTerritories'].unique()
+
+
+#Let us work with .count() now.
+count_begins_with_A_B_C = Covid_Case[Covid_Case.countriesAndTerritories.str.count(r'(^[A-C].*)') == 1]
+len(count_begins_with_A_B_C)
+
+#The length of the code above and the sum of the code below should give the same result.
+Covid_Case.countriesAndTerritories.str.count(r'^A.*').sum() + Covid_Case.countriesAndTerritories.str.count(r'^B.*').sum() + Covid_Case.countriesAndTerritories.str.count(r'^C.*').sum()
+
+#For all the rows in "countriesAndTerritories" column that have 'B' or 'b' in the name, it counts the total number of B/b in that name. The code below will give all the result where the count of B/b is greater than or equal to 2.
+Covid_Case.countriesAndTerritories.str.count('[Bb]')
+Covid_Case[Covid_Case.countriesAndTerritories.str.count('[Bb]') >= 2]
+Covid_Case[Covid_Case.countriesAndTerritories.str.count('[Bb]') >= 2]['countriesAndTerritories'].unique()
+
+Covid_Case.countriesAndTerritories.str.count('^[Zz].*') #It counts just those country's name which begin with Z or z on all the rows of "countriesAndTerritories" column. Basically, this code will count the total names starting with Z/z as 1.
+#The code below will give all the result where the count is greater than 0.
+Covid_Case[Covid_Case.countriesAndTerritories.str.count('^[Zz].*') > 0]
+Covid_Case[Covid_Case.countriesAndTerritories.str.count('^[Zz].*') > 0].countriesAndTerritories.unique() 
 
 
 
